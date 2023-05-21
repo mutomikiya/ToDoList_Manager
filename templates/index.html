@@ -8,8 +8,6 @@
         <!-- Bootstrap CSS -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
-        <link rel="stylesheet" href="/static/css/style.css">
-
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.0/main.min.css">
         <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.0/main.min.js"></script>
     </head>
@@ -143,7 +141,78 @@
                 </div>
             </div>
             </div>
+        </div> 
+
+        <div class="modal fade" id="scheduleDetailModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="schedule_title"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="schedule_time"></p>
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+                <button class = "btn btn-primary" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#scheduleEditModal">編集</button>
+                <form method='POST', action='/delete_calendar'>
+                    <input type="hidden" name = "index" id = "delete_calendar"> 
+                    <input type="submit" value = "削除" class = "btn btn-danger">                        
+                </form>
+                </div>
+            </div>
+            </div>
         </div>  
+
+        <div class="modal fade" id="scheduleEditModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">スケジュールの編集</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method='POST' id = "edit_calendar_form" action='/edit_calendar'>
+                        <input type="hidden" name = "index" id = "edit_calendar"> 
+                        <label class = "form-label">To Do</label>
+                        <h5 id= "edit_schedule_title"></h5>
+                        <label class = "form-label">日時</label>
+                        <div class = "input-group mb-3">
+                            <input type = 'date' id = 'today_for_edit' name = 'date' class = "form-control">
+                            <select name = "starttime" class = "form-control">
+                                {% for c in range(6,10) %}
+                                    <option value = {{ "0"+ (c | string) + ":00" }}>{{ "0"+ (c | string) + ":00" }}</option>
+                                    <option value = {{ "0"+ (c | string) + ":30" }}>{{ "0"+ (c | string) + ":30" }}</option>
+                                {% endfor %}
+                                {% for c in range(10,23) %}
+                                    <option value = {{ (c | string) + ":00" }}>{{ (c | string) + ":00" }}</option>
+                                    <option value = {{ (c | string) + ":30" }}>{{ (c | string) + ":30" }}</option>
+                                {% endfor %}
+                                    <option value = "23:00">23:00</option>
+                            </select>
+                            <span class = "input-group-text">〜</span>
+                            <select name = "endtime" class = "form-control">
+                                {% for c in range(6,10) %}
+                                    <option value = {{ "0"+ (c | string) + ":00" }}>{{ "0"+ (c | string) + ":00" }}</option>
+                                    <option value = {{ "0"+ (c | string) + ":30" }}>{{ "0"+ (c | string) + ":30" }}</option>
+                                {% endfor %}
+                                {% for c in range(10,23) %}
+                                    <option value = {{ (c | string) + ":00" }}>{{ (c | string) + ":00" }}</option>
+                                    <option value = {{ (c | string) + ":30" }}>{{ (c | string) + ":30" }}</option>
+                                {% endfor %}
+                                    <option value = "23:00">23:00</option>
+                            </select>
+                        </div>         
+                    </form>                
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+                <button type="submit" form="edit_calendar_form" class = "btn btn-primary">更新</button>
+                </div>
+            </div>
+            </div>
+        </div>         
         <!-- Script --> 
         <script>
             function addOption(id){
@@ -170,15 +239,36 @@
                 events: [
                 {% for event in events %}
                     {
+                        id: '{{ event.id }}',
                         title: '{{ event.todo }}',
                         start: '{{ event.starttime }}',
                         end: '{{ event.endtime }}',
                     },
                 {% endfor %}
                 ],
-                /* eventClick: function(info) {
-                    クリックした時にモーダルで編集・削除できるようにする
-                } */
+                eventClick: function(info) {
+                    var shceudle_title = info.event.title;
+                    var start_h = info.event.start.getHours();
+                    var start_m = info.event.start.getMinutes();
+                    var end_h = info.event.end.getHours();
+                    var end_m = info.event.end.getMinutes();
+                    if(start_m == 0){
+                        start_m = "00";
+                    }
+                    if(end_m == 0){
+                        end_m = "00";
+                    }
+                    var schedule_time = start_h + '時' + start_m + '分〜' + end_h + '時' + end_m + '分';
+
+                    document.getElementById('schedule_title').innerHTML = shceudle_title;
+                    document.getElementById('schedule_time').innerHTML = schedule_time;  
+                    document.getElementById('edit_schedule_title').innerHTML = shceudle_title;  
+                    document.getElementById('edit_calendar').value = info.event.id;                   
+                    document.getElementById('delete_calendar').value = info.event.id;
+
+                    var myModal = new bootstrap.Modal(document.getElementById('scheduleDetailModal'));
+                    myModal.show();
+                }
             });            
     
             calendar.render();
@@ -204,6 +294,7 @@
                 var ymd = yyyy + "-" + mm + "-" + dd;
 
                 document.getElementById("today").value = ymd;
+                document.getElementById("today_for_edit").value = ymd;
             }
         </script>    
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
