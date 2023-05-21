@@ -1,72 +1,172 @@
+<!doctype html>
 <html>
-    <head>
+    <head lang='ja'>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+        <link rel="stylesheet" href="/static/css/style.css">
+
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.0/main.min.css">
         <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.0/main.min.js"></script>
     </head>
     <body>
-        <h2>To Doを追加</h2>
-        <form method='POST', action='/append'>
-            To Do：<input type = 'text' name = 'message'>
-            所要時間：<input type = 'text' name = 'time'>
-            <select name = "unit">
-                <option value="分">分</option>
-                <option value="時間">時間</option>               
-            </select>
-            <input type="submit" value = "追加">
-        </form>
-        <h2>To Do一覧</h2>
-        {% if data | length != 0 %}
-        <table border="1" style="border-collapse: collapse">
-            <thead>
-                <tr>
-                    <th>To Do</th>
-                    <th>所要時間</th>
-                    <th>完了</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for todo in data %}
-                <tr>
-                    <td>{{ todo.content }}</td>
-                    <td>{{ todo.time }}</td>
-                    <td>
-                        <form method='POST', action='/delete'>
-                            <input type="hidden" name = "index" value = {{ todo.id }}> 
-                            <input type="submit" value = "完了">                        
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        To Do が登録されていません。
-        {% endif %}      
-        <a href='/complete'>完了タスク一覧</a>
-        <h2>To Doをカレンダーに追加</h2>
-        <form method='POST', action='/append_calendar'>
-            To Do：
-            <select name = todo>
-                <option hidden>選択してください</option>
-                {% for todo in data %}
-                <option value={{ todo.content }}>{{ todo.content }}</option>
-                {% endfor %} 
-            </select>
-            日時：
-            <input type = 'date' name = 'date'>
-            <input type = 'time' name = 'starttime'>
-            〜
-            <input type = 'time' name = 'endtime'>            
-            <input type="submit" value = "追加">
-        </form>
-        <div id="calendar"></div>
+        <div class = "row mb-3">
+            <div class="col-sm-6">
+                <div class = "row mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">To Doを追加</h5>
+                            <form method='POST', action='/append'>
+                                <label for = "todo" class = "form-label">To Do</label>
+                                <input type = 'text' id = 'todo' name = 'message' class = "form-control mb-3" required>
+                                <label for = "time" class = "form-label">所要時間</label>
+                                <div class = row>
+                                    <div class = "col-6">
+                                        <div class="input-group mb-3">
+                                            <input type="number" class="form-control" id = "time" name = 'time' required>
+                                            <select name = "unit" class = "input-group-append form-select">
+                                                <option value="分">分</option>
+                                                <option value="時間">時間</option>               
+                                            </select>           
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="submit" value = "追加" class = "btn btn-primary">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class = "row mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">To Do一覧</h5>
+                            {% if data | length != 0 %}
+                            <table class = "table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">To Do</th>
+                                        <th scope="col">所要時間</th>
+                                        <th scope="col">スケジュール</th>
+                                        <th scope="col">完了</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for todo in data %}
+                                    <tr>
+                                        <th scope="row">{{ loop.index }}</th>
+                                        <td>{{ todo.content }}</td>
+                                        <td>{{ todo.time }}</td>
+                                        <td>
+                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#scheduleModal" id = "openModal" onclick="addOption({{ loop.index0 }})">
+                                                追加
+                                            </button>
+                                        </td>
+                                        <td>
+                                            <form method='POST', action='/delete'>
+                                                <input type="hidden" name = "index" value = {{ todo.id }}> 
+                                                <input type="submit" value = "完了" class = "btn btn-primary">                        
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            {% else %}
+                            <p>To Do が登録されていません。</p>
+                            {% endif %}      
+                            <a href='/complete'>完了タスク一覧</a>                               
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div id="calendar"></div>
+                    </div>
+                </div>
+            </div>
+        </div> 
+        <!-- Modal -->
+        <div class="modal fade" id="scheduleModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">To Doをカレンダーに追加</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method='POST', id= "append_calendar" action='/append_calendar'>
+                        <label for = "todo_select" class = "form-label">To Do</label>
+                        <select id = "todo_select" name = todo class = "form-select mb-3"> 
+                            {% for todo in data %}
+                            <option value={{ todo.content }}>{{ todo.content }}</option>
+                            {% endfor %} 
+                        </select>
+                        <label class = "form-label">日時</label>
+                        <div class = "input-group mb-3">
+                            <input type = 'date' id = 'today' name = 'date' class = "form-control">
+                            <select name = "starttime" class = "form-control">
+                                {% for c in range(6,10) %}
+                                    <option value = {{ "0"+ (c | string) + ":00" }}>{{ "0"+ (c | string) + ":00" }}</option>
+                                    <option value = {{ "0"+ (c | string) + ":30" }}>{{ "0"+ (c | string) + ":30" }}</option>
+                                {% endfor %}
+                                {% for c in range(10,23) %}
+                                    <option value = {{ (c | string) + ":00" }}>{{ (c | string) + ":00" }}</option>
+                                    <option value = {{ (c | string) + ":30" }}>{{ (c | string) + ":30" }}</option>
+                                {% endfor %}
+                                    <option value = "23:00">23:00</option>
+                            </select>
+                            <span class = "input-group-text">〜</span>
+                            <select name = "endtime" class = "form-control">
+                                {% for c in range(6,10) %}
+                                    <option value = {{ "0"+ (c | string) + ":00" }}>{{ "0"+ (c | string) + ":00" }}</option>
+                                    <option value = {{ "0"+ (c | string) + ":30" }}>{{ "0"+ (c | string) + ":30" }}</option>
+                                {% endfor %}
+                                {% for c in range(10,23) %}
+                                    <option value = {{ (c | string) + ":00" }}>{{ (c | string) + ":00" }}</option>
+                                    <option value = {{ (c | string) + ":30" }}>{{ (c | string) + ":30" }}</option>
+                                {% endfor %}
+                                    <option value = "23:00">23:00</option>
+                            </select>
+                        </div>         
+                    </form>                
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+                <button type="submit" form="append_calendar" class = "btn btn-primary">追加</button>
+                </div>
+            </div>
+            </div>
+        </div>  
+        <!-- Script --> 
         <script>
-
+            function addOption(id){
+                var select = document.getElementById("todo_select");
+                var options = select.options;
+                for(let i = 0; i < options.length; i++){
+                    if(i === id){
+                        options[i].selected = true;
+                    }else{
+                        options[i].selected = false;
+                    }
+                }
+            }
+        </script>     
+        <script>
             let calendarEl = document.getElementById('calendar');
     
             let calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'timeGridDay',
                 locale: 'ja',
+                slotMinTime: '06:00',
+                slotMaxTime: '23:00',
+                displayEventEnd: true,
                 events: [
                 {% for event in events %}
                     {
@@ -75,10 +175,37 @@
                         end: '{{ event.endtime }}',
                     },
                 {% endfor %}
-                ]
+                ],
+                /* eventClick: function(info) {
+                    クリックした時にモーダルで編集・削除できるようにする
+                } */
             });            
     
             calendar.render();
-        </script>        
+        </script>
+        <script>
+            window.onload = function(){
+                var date = new Date()
+                var year = date.getFullYear()
+                var month = date.getMonth() + 1
+                var day = date.getDate()
+
+                var toTwoDigtits = function(num, digit){
+                    num += ""
+                    if ( num.length < digit){
+                        num = "0" + num
+                    }
+                    return num
+                }
+
+                var yyyy = toTwoDigtits(year,4)
+                var mm = toTwoDigtits(month,2)
+                var dd = toTwoDigtits(day,2)
+                var ymd = yyyy + "-" + mm + "-" + dd;
+
+                document.getElementById("today").value = ymd;
+            }
+        </script>    
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
     </body>
 </html>

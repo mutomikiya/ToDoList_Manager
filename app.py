@@ -75,7 +75,7 @@ def append_calendar():
         todo = request.form['todo']
         day = request.form['date']
         starttime = day + 'T' + request.form['starttime']
-        endtime = day + request.form['endtime']
+        endtime = day + 'T' + request.form['endtime']
 
         schedule = Schedule(todo = todo, starttime = starttime, endtime = endtime)
         db.session.add(schedule)
