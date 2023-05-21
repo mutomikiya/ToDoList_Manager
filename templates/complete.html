@@ -12,7 +12,13 @@
         <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.0/main.min.js"></script>
     </head>
     <body>
-        <div class="card">
+    <nav class="navbar navbar-light bg-light">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 mx-1 h1">To Do List Manager</span>   
+        </div> 
+    </nav>
+    <div class="container">        
+        <div class="card my-3">
             <div class="card-body">
                 <h5 class="card-title">完了タスク一覧</h5>
                 {% if data | length != 0 %}
@@ -40,5 +46,6 @@
                 <a href='/'>To Do一覧</a>
             </div>
         </div>
+    </div>
     </body>
 </html>
