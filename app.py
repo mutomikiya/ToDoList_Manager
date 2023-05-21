@@ -75,10 +75,38 @@ def append_calendar():
         todo = request.form['todo']
         day = request.form['date']
         starttime = day + 'T' + request.form['starttime']
-        endtime = day + request.form['endtime']
+        endtime = day + 'T' + request.form['endtime']
 
         schedule = Schedule(todo = todo, starttime = starttime, endtime = endtime)
         db.session.add(schedule)
+        db.session.commit()
+    
+    return redirect(url_for('index'))
+
+@app.route('/edit_calendar', methods=['GET','POST'])
+def edit_calendar():
+    if request.method == 'POST':
+        edit_schedule_id = int(request.form['index'])
+        edit_schedule = Schedule.query.get(edit_schedule_id)
+        
+        day = request.form['date']
+        starttime = day + 'T' + request.form['starttime']
+        endtime = day + 'T' + request.form['endtime']
+
+        edit_schedule.starttime = starttime
+        edit_schedule.endtime = endtime
+
+        db.session.commit()
+    
+    return redirect(url_for('index'))
+
+@app.route('/delete_calendar', methods=['GET','POST'])
+def delete_calendar():
+    if request.method == 'POST':
+        delete_schedule_id = int(request.form['index'])
+        delete_schedule = Schedule.query.get(delete_schedule_id)
+
+        db.session.delete(delete_schedule)
         db.session.commit()
     
     return redirect(url_for('index'))
