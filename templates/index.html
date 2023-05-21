@@ -1,0 +1,84 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.0/main.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.0/main.min.js"></script>
+    </head>
+    <body>
+        <h2>To Doを追加</h2>
+        <form method='POST', action='/append'>
+            To Do：<input type = 'text' name = 'message'>
+            所要時間：<input type = 'text' name = 'time'>
+            <select name = "unit">
+                <option value="分">分</option>
+                <option value="時間">時間</option>               
+            </select>
+            <input type="submit" value = "追加">
+        </form>
+        <h2>To Do一覧</h2>
+        {% if data | length != 0 %}
+        <table border="1" style="border-collapse: collapse">
+            <thead>
+                <tr>
+                    <th>To Do</th>
+                    <th>所要時間</th>
+                    <th>完了</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for todo in data %}
+                <tr>
+                    <td>{{ todo.content }}</td>
+                    <td>{{ todo.time }}</td>
+                    <td>
+                        <form method='POST', action='/delete'>
+                            <input type="hidden" name = "index" value = {{ todo.id }}> 
+                            <input type="submit" value = "完了">                        
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        To Do が登録されていません。
+        {% endif %}      
+        <a href='/complete'>完了タスク一覧</a>
+        <h2>To Doをカレンダーに追加</h2>
+        <form method='POST', action='/append_calendar'>
+            To Do：
+            <select name = todo>
+                <option hidden>選択してください</option>
+                {% for todo in data %}
+                <option value={{ todo.content }}>{{ todo.content }}</option>
+                {% endfor %} 
+            </select>
+            日時：
+            <input type = 'date' name = 'date'>
+            <input type = 'time' name = 'starttime'>
+            〜
+            <input type = 'time' name = 'endtime'>            
+            <input type="submit" value = "追加">
+        </form>
+        <div id="calendar"></div>
+        <script>
+
+            let calendarEl = document.getElementById('calendar');
+    
+            let calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'timeGridDay',
+                locale: 'ja',
+                events: [
+                {% for event in events %}
+                    {
+                        title: '{{ event.todo }}',
+                        start: '{{ event.starttime }}',
+                        end: '{{ event.endtime }}',
+                    },
+                {% endfor %}
+                ]
+            });            
+    
+            calendar.render();
+        </script>        
+    </body>
+</html>

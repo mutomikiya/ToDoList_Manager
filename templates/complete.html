@@ -1,0 +1,26 @@
+<html>
+    <body>
+        <h2>完了タスク一覧</h2>
+        {% if data | length != 0 %}
+        <table border="1" style="border-collapse: collapse">
+            <thead>
+                <tr>
+                    <th>To Do</th>
+                    <th>完了日</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for todo in data %}
+                <tr>
+                    <td>{{ todo.content }}</td>
+                    <td>{{ todo.complete_at }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        完了したタスクはありません。
+        {% endif %}
+        <a href='/'>To Do一覧</a>
+    </body>
+</html>
