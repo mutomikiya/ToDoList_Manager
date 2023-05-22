@@ -14,6 +14,7 @@ class ToDo(db.Model):
     id = db.Column(
         db.Integer, primary_key=True
     )
+    priority = db.Column(db.Integer)
     content = db.Column(db.String(100))
     time = db.Column(db.String(10))
     complete = db.Column(db.Boolean)
@@ -41,9 +42,10 @@ def index():
 def append():
     if request.method == 'POST':
         content = request.form['message']
+        priority = request.form['priorityOptions']
         time = request.form['time']+request.form['unit']
         complete = False
-        todo = ToDo(content = content, time = time, complete = complete)
+        todo = ToDo(content = content, priority = priority, time = time, complete = complete)
         db.session.add(todo)
         db.session.commit()
     

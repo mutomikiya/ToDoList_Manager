@@ -9,12 +9,13 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.0/main.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
         <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.0/main.min.js"></script>
     </head>
     <body>
     <nav class="navbar navbar-light bg-light">
         <div class="container-fluid">
-            <span class="navbar-brand mb-0 h1">To Do List Manager</span>  
+            <span class="navbar-brand mb-0 h1">To Do List Manager</span> 
         </div>  
     </nav>
     <div class="container">
@@ -27,6 +28,21 @@
                             <form method='POST' action='/append' class = "needs-validation" novalidate>
                                 <label for = "todo" class = "form-label">To Do</label>
                                 <input type = 'text' id = 'todo' name = 'message' class = "form-control mb-3" required>
+                                <label for = "priority" class = "form-label">優先順位</label>
+                                <div id="priority" class = "mb-3">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="priorityOptions" id="urgent" value=1>
+                                        <label class="form-check-label" for="inlineRadio1">A</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="priorityOptions" id="approaching" value=2>
+                                        <label class="form-check-label" for="inlineRadio2">B</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="priorityOptions" id="low_priority" value=3>
+                                        <label class="form-check-label" for="inlineRadio3">C</label>
+                                    </div>
+                                </div>
                                 <label for = "time" class = "form-label">所要時間</label>
                                 <div class = row>
                                     <div class = "col-6">
@@ -52,29 +68,45 @@
                             <table class = "table">
                                 <thead>
                                     <tr>
-                                        <th scope="col">#</th>
-                                        <th scope="col">To Do</th>
-                                        <th scope="col">所要時間</th>
-                                        <th scope="col">スケジュール</th>
-                                        <th scope="col">完了</th>
+                                        <th scope="col" class= "text-center" style="width: 20%">優先順位</th>
+                                        <th scope="col" style="width: 45%">To Do</th>
+                                        <th scope="col" class= "text-center" style="width: 20%">所要時間</th>
+                                        <th scope="col" style="width: 15%"></th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for todo in data %}
                                     <tr>
-                                        <th scope="row">{{ loop.index }}</th>
-                                        <td>{{ todo.content }}</td>
-                                        <td>{{ todo.time }}</td>
-                                        <td>
-                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#scheduleModal" id = "openModal" onclick="addOption({{ loop.index0 }})">
-                                                追加
-                                            </button>
+                                        <td class= "text-center align-middle">
+                                        {% if todo.priority == 1 %}A
+                                        {% elif todo.priority == 2 %}B
+                                        {% else %}C
+                                        {% endif %}
                                         </td>
+                                        <td class="align-middle">{{ todo.content }}</td>
+                                        <td class= "text-center align-middle">{{ todo.time }}</td>
                                         <td>
-                                            <form method='POST', action='/delete'>
-                                                <input type="hidden" name = "index" value = {{ todo.id }}> 
-                                                <input type="submit" value = "完了" class = "btn btn-primary">                        
-                                            </form>
+
+                                            <div class="dropdown">
+                                                <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="bi bi-list"></i>
+                                                </button>
+                                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                                    <li class="dropdown-item d-grid">
+                                                        <button class="btn btn-default" data-bs-toggle="modal" data-bs-target="#scheduleModal" id = "openModal" onclick="addOption({{ loop.index0 }})" style="text-align: left;">
+                                                            <i class="bi bi-calendar-plus"></i><span class="mx-2">カレンダーに追加</span>
+                                                        </button>
+                                                    </li>
+                                                    <li class="dropdown-item">
+                                                        <form method = "POST" action ="/delete" class="d-grid">
+                                                            <button type="submit" class="btn btn-default" name="index" value={{ todo.id }} style="text-align: left;">
+                                                                    <i class="bi bi-check-square"></i>
+                                                                    <span class="mx-2">完了</span>
+                                                            </button> 
+                                                        </form>
+                                                    </li>
+                                                </ul>
+                                            </div>
                                         </td>
                                     </tr>
                                     {% endfor %}
@@ -83,7 +115,7 @@
                             {% else %}
                             <p>To Do が登録されていません。</p>
                             {% endif %}      
-                            <a href='/complete'>完了タスク一覧</a>                               
+                            <a href='/complete'>完了タスク一覧</a>                            
                         </div>
                     </div>
                 </div>
@@ -160,11 +192,19 @@
                     <p id="schedule_time"></p>
                 </div>
                 <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
-                <button class = "btn btn-primary" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#scheduleEditModal">編集</button>
+                <button type="button" class="btn btn-default" data-bs-dismiss="modal">
+                    <i class="bi bi-x"></i>
+                    <span>閉じる</span>
+                </button>
+                <button class = "btn btn-default" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#scheduleEditModal">
+                    <i class="bi bi-pen"></i>
+                    <span>編集</span>
+                </button>
                 <form method='POST', action='/delete_calendar'>
-                    <input type="hidden" name = "index" id = "delete_calendar"> 
-                    <input type="submit" value = "削除" class = "btn btn-danger">                        
+                    <button type="submit" class="btn btn-default" name="index" id = "delete_calendar">
+                        <i class="bi bi-trash"></i>
+                        <span>削除</span>
+                    </button>                      
                 </form>
                 </div>
             </div>
@@ -305,14 +345,11 @@
             }
         </script> 
         <script>
-            // Example starter JavaScript for disabling form submissions if there are invalid fields
             (function () {
             'use strict'
 
-            // Fetch all the forms we want to apply custom Bootstrap validation styles to
             var forms = document.querySelectorAll('.needs-validation')
 
-            // Loop over them and prevent submission
             Array.prototype.slice.call(forms)
                 .forEach(function (form) {
                 form.addEventListener('submit', function (event) {
