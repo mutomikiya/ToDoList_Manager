@@ -50,7 +50,28 @@ def append():
         db.session.commit()
     
     return redirect(url_for('index'))
+
+@app.route('/edit', methods=['GET','POST'])
+def edit():
+    if request.method == 'POST':
+        edit_todo_id = int(request.form['index'])
+        edit_todo = ToDo.query.get(edit_todo_id)
+
+        content = request.form['message']
+        priority = request.form['priorityOptions']
+        time = request.form['time']+request.form['unit']
+        complete = False
+
+        edit_todo.content = content
+        edit_todo.priority = priority
+        edit_todo.time = time
+        edit_todo.complete = complete
+        
+        db.session.add(edit_todo)
+        db.session.commit()
     
+    return redirect(url_for('index'))
+
 @app.route('/delete', methods=['GET','POST'])
 def delete():
     if request.method == 'POST':

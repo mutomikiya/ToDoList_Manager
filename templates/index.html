@@ -45,14 +45,14 @@
                                 <tbody>
                                     {% for todo in data %}
                                     <tr>
-                                        <td class= "text-center align-middle">
+                                        <td id = "priority{{ todo.id }}" class= "text-center align-middle">
                                         {% if todo.priority == 1 %}A
                                         {% elif todo.priority == 2 %}B
                                         {% else %}C
                                         {% endif %}
                                         </td>
-                                        <td class="align-middle">{{ todo.content }}</td>
-                                        <td class= "text-center align-middle">{{ todo.time }}</td>
+                                        <td id = "content{{ todo.id }}" class="align-middle">{{ todo.content }}</td>
+                                        <td id = "time{{ todo.id }}" class= "text-center align-middle">{{ todo.time }}</td>
                                         <td>
                                             <div class="dropdown">
                                                 <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
@@ -62,6 +62,12 @@
                                                     <li class="dropdown-item d-grid">
                                                         <button class="btn btn-default" data-bs-toggle="modal" data-bs-target="#scheduleModal" id = "openModal" onclick="addOption({{ loop.index0 }})" style="text-align: left;">
                                                             <i class="bi bi-calendar-plus"></i><span class="mx-2">カレンダーに追加</span>
+                                                        </button>
+                                                    </li>
+                                                    <li class="dropdown-item d-grid">
+                                                        <button class = "btn btn-default" data-bs-toggle="modal" data-bs-target="#editModal" onclick="editToDo({{ todo.id }})" style="text-align: left;">
+                                                            <i class="bi bi-pen"></i>
+                                                            <span class="mx-2">編集</span>
                                                         </button>
                                                     </li>
                                                     <li class="dropdown-item">
@@ -142,6 +148,55 @@
                 </div>
             </div>
             </div>
+        </div> 
+
+        <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">To Doを編集</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form method='POST' action='/edit' class = "needs-validation" id = "edit-todo" novalidate>
+                            <input type="hidden" name = "index" id = "edit_todo"> 
+                            <label for = "todo" class = "form-label">To Do</label>
+                            <input type = 'text' id = 'todo_edit' name = 'message' class = "form-control mb-3" required>
+                            <label for = "priority" class = "form-label">優先順位</label>
+                            <div id="priority" class = "mb-3">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="priorityOptions" id="urgent_edit" value=1 required>
+                                    <label class="form-check-label" for="inlineRadio1">A</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="priorityOptions" id="approaching_edit" value=2>
+                                    <label class="form-check-label" for="inlineRadio2">B</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="priorityOptions" id="low_priority_edit" value=3>
+                                    <label class="form-check-label" for="inlineRadio3">C</label>
+                                </div>
+                            </div>
+                            <label for = "time" class = "form-label">所要時間</label>
+                            <div class = row>
+                                <div class = "col-6">
+                                    <div class="input-group mb-3">
+                                        <input type="number" class="form-control" id = "time-edit" name = 'time' min = "1" required>
+                                        <select name = "unit" class = "input-group-append form-select" id='time-unit-edit'>
+                                            <option value="分">分</option>
+                                            <option value="時間">時間</option>               
+                                        </select>           
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+                        <button type="submit" form="edit-todo" class = "btn btn-primary">更新</button>
+                    </div>
+                </div>
+                </div>
         </div> 
 
         <div class="modal fade" id="scheduleModal" tabindex="-1" aria-hidden="true">
@@ -275,6 +330,33 @@
             </div>
         </div>         
         <!-- Script --> 
+        <script>
+            function editToDo(id){
+                document.getElementById('edit_todo').value = id;
+                var todo_content = document.getElementById('content'+ id).textContent;
+                document.getElementById('todo_edit').value = todo_content;
+                
+                var todo_time = document.getElementById('time'+ id).textContent;
+                if ( todo_time.match('時間')) {
+                    var options = document.getElementById("time-unit-edit")
+                    options[1].selected = true;
+                    var time = todo_time.replace('時間','');
+                } else {
+                    var time = todo_time.replace('分','');
+                }
+                document.getElementById('time-edit').value = Number(time);
+
+                var todo_priority = document.getElementById('priority'+ id).textContent;
+                if (todo_priority.trim() == "A"){
+                    document.getElementById('urgent_edit').checked = true;
+                } else if ( todo_priority.trim() == "B" ){
+                    document.getElementById('approaching_edit').checked = true;
+                } else {
+                    console.log("s");
+                    document.getElementById('low_priority_edit').checked = true;
+                }
+            }
+        </script> 
         <script>
             function addOption(id){
                 var select = document.getElementById("todo_select");
