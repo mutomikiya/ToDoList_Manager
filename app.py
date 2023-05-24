@@ -72,8 +72,8 @@ def edit():
     
     return redirect(url_for('index'))
 
-@app.route('/delete', methods=['GET','POST'])
-def delete():
+@app.route('/done', methods=['GET','POST'])
+def done():
     if request.method == 'POST':
         try:
             id = int(request.form['index'])
@@ -87,8 +87,39 @@ def delete():
             
     return redirect(url_for('index'))
 
+@app.route('/delete', methods=['GET','POST'])
+def delete():
+    if request.method == 'POST':
+        try:
+            id = int(request.form['index'])
+            todo_delete = ToDo.query.get(id)
+
+            db.session.delete(todo_delete)
+            db.session.commit()
+
+        except IndexError:
+            return redirect(url_for('index'))
+            
+    return redirect(url_for('index'))
+
+@app.route('/delete_complete', methods=['GET','POST'])
+def deleteComplete():
+    if request.method == 'POST':
+        try:
+            id = int(request.form['index'])
+            todo_delete = ToDo.query.get(id)
+
+            db.session.delete(todo_delete)
+            db.session.commit()
+
+        except IndexError:
+            return redirect(url_for('index'))
+            
+    return redirect(url_for('complete'))
+
+
 @app.route('/complete')
-def completed():
+def complete():
     data = ToDo.query.where(ToDo.complete == True).all()
     return render_template('complete.html', data = data)
 

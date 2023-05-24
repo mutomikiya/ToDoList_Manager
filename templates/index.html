@@ -63,6 +63,14 @@
                                                         <button class="btn btn-default" data-bs-toggle="modal" data-bs-target="#scheduleModal" id = "openModal" onclick="addOption({{ loop.index0 }})" style="text-align: left;">
                                                             <i class="bi bi-calendar-plus"></i><span class="mx-2">カレンダーに追加</span>
                                                         </button>
+                                                    </li>                                               
+                                                    <li class="dropdown-item">
+                                                        <form method = "POST" action ="/done" class="d-grid">
+                                                            <button type="submit" class="btn btn-default" name="index" value={{ todo.id }} style="text-align: left;">
+                                                                <i class="bi bi-check2"></i>
+                                                                <span class="mx-2">完了</span>
+                                                            </button> 
+                                                        </form>
                                                     </li>
                                                     <li class="dropdown-item d-grid">
                                                         <button class = "btn btn-default" data-bs-toggle="modal" data-bs-target="#editModal" onclick="editToDo({{ todo.id }})" style="text-align: left;">
@@ -73,8 +81,8 @@
                                                     <li class="dropdown-item">
                                                         <form method = "POST" action ="/delete" class="d-grid">
                                                             <button type="submit" class="btn btn-default" name="index" value={{ todo.id }} style="text-align: left;">
-                                                                <i class="bi bi-check2"></i>
-                                                                <span class="mx-2">完了</span>
+                                                                <i class="bi bi-trash"></i>
+                                                                <span class="mx-2">削除</span>    
                                                             </button> 
                                                         </form>
                                                     </li>
