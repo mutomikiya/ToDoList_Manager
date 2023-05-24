@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import relationship
+from sqlalchemy import ForeignKey 
 import datetime
 
 app = Flask(__name__, static_folder='.', static_url_path='')
@@ -11,23 +13,23 @@ db = SQLAlchemy(app)
 
 class ToDo(db.Model):
     __tablename__ = 'todo'
-    id = db.Column(
-        db.Integer, primary_key=True
-    )
+    id = db.Column(db.Integer, primary_key=True)
     priority = db.Column(db.Integer)
     content = db.Column(db.String(100))
     time = db.Column(db.String(10))
     complete = db.Column(db.Boolean)
     complete_at = db.Column(db.Date)
 
+    schedules = relationship('Schedule', back_populates ='todo')
+
 class Schedule(db.Model):
     __tablename__ = 'schedule'
-    id = db.Column(
-        db.Integer, primary_key=True
-    )
-    todo = db.Column(db.String(100))
+    id = db.Column(db.Integer, primary_key=True)
     starttime = db.Column(db.String(20))
     endtime = db.Column(db.String(20))
+    todo_id = db.Column(db.Integer, ForeignKey('todo.id'))
+
+    todo = relationship("ToDo", back_populates= "schedules")
 
 with app.app_context():
     db.create_all()
@@ -77,9 +79,12 @@ def done():
     if request.method == 'POST':
         try:
             id = int(request.form['index'])
+            db.session.query(Schedule).filter(Schedule.todo_id == id).delete()
+            
             todo_complete = ToDo.query.get(id)
             todo_complete.complete = True 
             todo_complete.complete_at = datetime.date.today()
+
             db.session.commit()
 
         except IndexError:
@@ -88,26 +93,12 @@ def done():
     return redirect(url_for('index'))
 
 @app.route('/delete', methods=['GET','POST'])
-def delete():
-    if request.method == 'POST':
-        try:
-            id = int(request.form['index'])
-            todo_delete = ToDo.query.get(id)
-
-            db.session.delete(todo_delete)
-            db.session.commit()
-
-        except IndexError:
-            return redirect(url_for('index'))
-            
-    return redirect(url_for('index'))
-
-@app.route('/delete_complete', methods=['GET','POST'])
 def deleteComplete():
     if request.method == 'POST':
         try:
             id = int(request.form['index'])
             todo_delete = ToDo.query.get(id)
+            db.session.query(Schedule).filter(Schedule.todo_id == id).delete()
 
             db.session.delete(todo_delete)
             db.session.commit()
@@ -117,7 +108,6 @@ def deleteComplete():
             
     return redirect(url_for('complete'))
 
-
 @app.route('/complete')
 def complete():
     data = ToDo.query.where(ToDo.complete == True).all()
@@ -126,12 +116,12 @@ def complete():
 @app.route('/append_calendar', methods=['GET','POST'])
 def append_calendar():
     if request.method == 'POST':
-        todo = request.form['todo']
+        todo_id = request.form['todo']
         day = request.form['date']
         starttime = day + 'T' + request.form['starttime']
         endtime = day + 'T' + request.form['endtime']
 
-        schedule = Schedule(todo = todo, starttime = starttime, endtime = endtime)
+        schedule = Schedule(todo_id = todo_id, starttime = starttime, endtime = endtime)
         db.session.add(schedule)
         db.session.commit()
     
