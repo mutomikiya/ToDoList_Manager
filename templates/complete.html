@@ -15,13 +15,13 @@
     <body>
     <nav class="navbar navbar-light bg-light">
         <div class="container-fluid">
-            <span class="navbar-brand mb-0 mx-1 h1">To Do List Manager</span>   
+            <a href="/" class="navbar-brand mb-0 mx-1 h1">To Do List Manager</a>   
         </div> 
     </nav>
     <div class="container">        
         <div class="card my-3">
             <div class="card-body">
-                <h5 class="card-title">完了タスク一覧</h5>
+                <h3 class="card-title">完了タスク一覧</h3>
                 {% if data | length != 0 %}
                 <table class = "table">
                     <thead>
@@ -50,7 +50,7 @@
                     </tbody>
                 </table>
                 {% else %}
-                完了したタスクはありません。
+                <p>完了したタスクはありません。</p>
                 {% endif %}
                 <a href='/'>To Do一覧</a>
             </div>

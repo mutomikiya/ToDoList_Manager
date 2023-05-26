@@ -15,81 +15,79 @@
     <body>
     <nav class="navbar navbar-light bg-light">
         <div class="container-fluid">
-            <span class="navbar-brand mb-0 h1">To Do List Manager</span> 
+            <a href="/" class="navbar-brand mb-0 h1">To Do List Manager</a> 
         </div>  
     </nav>
     <div class="container">
         <div class = "row my-3">
             <div class="col-sm-6">
-                <div class = "row mb-3">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="row">
-                                <h3 class="card-title text-left col-6">To Do一覧</h3>
-                                <div class="text-end col-6">
-                                    <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#todoModal" id = "openModal">
-                                        <i class="bi bi-plus-lg"></i>
-                                    </button>
-                                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <h3 class="card-title text-left col-6">To Do一覧</h3>
+                            <div class="text-end col-6">
+                                <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#todoModal" id = "openModal">
+                                    <i class="bi bi-plus-lg"></i>
+                                </button>
                             </div>
-                            {% if data | length != 0 %}
-                            <table class = "table">
-                                <thead>
-                                    <tr>
-                                        <th scope="col" class= "text-center" style="width: 20%">優先順位</th>
-                                        <th scope="col" style="width: 45%">To Do</th>
-                                        <th scope="col" class= "text-center" style="width: 20%">所要時間</th>
-                                        <th scope="col" style="width: 15%"></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for todo in data %}
-                                    <tr>
-                                        <td id = "priority{{ todo.id }}" class= "text-center align-middle">
-                                        {% if todo.priority == 1 %}A
-                                        {% elif todo.priority == 2 %}B
-                                        {% else %}C
-                                        {% endif %}
-                                        </td>
-                                        <td id = "content{{ todo.id }}" class="align-middle">{{ todo.content }}</td>
-                                        <td id = "time{{ todo.id }}" class= "text-center align-middle">{{ todo.time }}</td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                                                    <i class="bi bi-list"></i>
-                                                </button>
-                                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                                    <li class="dropdown-item d-grid">
-                                                        <button class="btn btn-default" data-bs-toggle="modal" data-bs-target="#scheduleModal" id = "openModal" onclick="addOption({{ loop.index0 }})" style="text-align: left;">
-                                                            <i class="bi bi-calendar-plus"></i><span class="mx-2">カレンダーに追加</span>
-                                                        </button>
-                                                    </li>                                               
-                                                    <li class="dropdown-item">
-                                                        <form method = "POST" action ="/done" class="d-grid">
-                                                            <button type="submit" class="btn btn-default" name="index" value={{ todo.id }} style="text-align: left;">
-                                                                <i class="bi bi-check2"></i>
-                                                                <span class="mx-2">完了</span>
-                                                            </button> 
-                                                        </form>
-                                                    </li>
-                                                    <li class="dropdown-item d-grid">
-                                                        <button class = "btn btn-default" data-bs-toggle="modal" data-bs-target="#editModal" onclick="editToDo({{ todo.id }})" style="text-align: left;">
-                                                            <i class="bi bi-pencil-square"></i>
-                                                            <span class="mx-2">編集</span>
-                                                        </button>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                            {% else %}
-                            <p>To Do が登録されていません。</p>
-                            {% endif %}      
-                            <a href='/complete'>完了タスク一覧</a>                            
                         </div>
+                        {% if data | length != 0 %}
+                        <table class = "table">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class= "text-center" style="width: 20%">優先順位</th>
+                                    <th scope="col" style="width: 45%">To Do</th>
+                                    <th scope="col" class= "text-center" style="width: 20%">所要時間</th>
+                                    <th scope="col" style="width: 15%"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for todo in data %}
+                                <tr>
+                                    <td id = "priority{{ todo.id }}" class= "text-center align-middle">
+                                    {% if todo.priority == 1 %}A
+                                    {% elif todo.priority == 2 %}B
+                                    {% else %}C
+                                    {% endif %}
+                                    </td>
+                                    <td id = "content{{ todo.id }}" class="align-middle">{{ todo.content }}</td>
+                                    <td id = "time{{ todo.id }}" class= "text-center align-middle">{{ todo.time }}</td>
+                                    <td class= "text-center align-middle">
+                                        <div class="dropdown">
+                                            <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="bi bi-list"></i>
+                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                                <li class="dropdown-item d-grid">
+                                                    <button class="btn btn-default" data-bs-toggle="modal" data-bs-target="#scheduleModal" id = "openModal" onclick="addOption({{ loop.index0 }})" style="text-align: left;">
+                                                        <i class="bi bi-calendar-plus"></i><span class="mx-2">カレンダーに追加</span>
+                                                    </button>
+                                                </li>                                               
+                                                <li class="dropdown-item">
+                                                    <form method = "POST" action ="/done" class="d-grid">
+                                                        <button type="submit" class="btn btn-default" name="index" value={{ todo.id }} style="text-align: left;">
+                                                            <i class="bi bi-check2"></i>
+                                                            <span class="mx-2">完了</span>
+                                                        </button> 
+                                                    </form>
+                                                </li>
+                                                <li class="dropdown-item d-grid">
+                                                    <button class = "btn btn-default" data-bs-toggle="modal" data-bs-target="#editModal" onclick="editToDo({{ todo.id }})" style="text-align: left;">
+                                                        <i class="bi bi-pencil-square"></i>
+                                                        <span class="mx-2">編集</span>
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <p>To Do が登録されていません。</p>
+                        {% endif %}      
+                        <a href='/complete'>完了タスク一覧</a>                            
                     </div>
                 </div>
             </div>
@@ -403,12 +401,18 @@
                 slotMinTime: '06:00',
                 slotMaxTime: '23:00',
                 displayEventEnd: true,
+                allDaySlot: false,
+                nowIndicator: true,
                 events: [
                 {% for event in events %}
                     {
                         id: '{{ event.id }}',
                         {% if data | length != 0 %}
-                        title: "{{ data[event.todo_id-1]['content'] }}",
+                        {% for todo in data %}
+                        {% if todo.id == event.todo_id %}
+                        title: "{{ todo.content }}",
+                        {% endif %}
+                        {% endfor %}
                         {% endif %}
                         start: '{{ event.starttime }}',
                         end: '{{ event.endtime }}',
@@ -437,6 +441,12 @@
 
                     var myModal = new bootstrap.Modal(document.getElementById('scheduleDetailModal'));
                     myModal.show();
+                },
+                eventMouseEnter: function(mouseEnterInfo){
+                    mouseEnterInfo.el.style.cursor = "pointer";
+                },
+                eventMouseLeave: function(mouseLeaveInfo){
+                    mouseLeaveInfo.el.style.cursor = "";
                 }
             });            
     
