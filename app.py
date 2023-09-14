@@ -3,6 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from sqlalchemy import ForeignKey 
 import datetime
+import xml.etree.ElementTree as ET
+import re
 
 app = Flask(__name__, static_folder='.', static_url_path='')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///todo.db'
@@ -154,5 +156,9 @@ def delete_calendar():
         db.session.commit()
     
     return redirect(url_for('index'))
+
+@app.route('/map')
+def map():
+    return render_template('map.html')
 
 app.run(port=8080, debug=True)

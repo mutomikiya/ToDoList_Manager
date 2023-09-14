@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+  <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.12.0/d3.min.js" type="text/JavaScript"></script>
+  </head>
+  <body>
+    <svg></svg>
+    <script>
+      var width = 1500,
+          height = 800;
+      var scale =1800;
+      d3.json("japan_prefecture.geojson", createMap);
+
+      function createMap(japan) {
+        var aProjection = d3.geoMercator()
+            .center([ 138.0, 36.6 ])
+            .translate([width/2, height/2])
+            .scale(scale);
+        var geoPath = d3.geoPath().projection(aProjection);
+        var svg = d3.select("svg").attr("width",width).attr("height",height);
+        //マップ描画
+        var map = svg.selectAll("path").data(japan.features)
+          .enter()
+          .append("path")
+            .attr("d", geoPath)
+            .style("stroke", "#797979")
+            .style("stroke-width", 0.1)
+            .style("fill", "#797979");
+
+        var pointdata = {
+            "type":"LineString",
+            "coordinates": [
+                [130.65, 31.6],
+                [139.67, 35.66]
+            ]
+        }
+        var line = svg.selectAll(".ilne").data([pointdata])
+            .enter()
+            .append("path")
+                .attr("d",geoPath)
+                .style("stroke","red")
+                .style("stroke-width",1.5)
+                .style("fill","none")
+;
+      }
+
+    </script>
+  </body>
+</html>
