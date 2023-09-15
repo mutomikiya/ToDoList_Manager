@@ -159,6 +159,7 @@ def delete_calendar():
 
 @app.route('/map')
 def map():
-    return render_template('map.html')
+    pointdata = ["139.0592001,37.9120388","139.2133381,37.9201075","139.2650216,37.9400908","139.8433199,38.9222392"]
+    return render_template('map.html', data = pointdata)
 
 app.run(port=8080, debug=True)
