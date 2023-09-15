@@ -16,10 +16,37 @@ elements.remove();
 d3.json("japan_prefecture.geojson", createMap);
 
 function createMap(japan) {
+    var featureCollection = {
+        "type":"FeatureCollection",
+        "features": [
+            {   "type": "Feature",
+                "properties": {"id": 1, "name": "新潟駅" },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [139.0592001,37.9120388]
+                }
+            },
+            {   "type": "Feature",
+                "properties": {"id": 2, "name": "秋田駅" },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [139.8433199,38.9222392]
+                }
+            },
+            {   "type": "Feature",
+                "properties": {"id": 3, "name": "函館駅" },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [140.7236888,41.7675754]
+                }
+            },
+        ]
+    }
     var aProjection = d3.geoMercator()
         .center([ 139.5, 38.6 ])
         .translate([width/2, height/2])
-        .scale(scale);
+        .fitExtent([[width * 0.1, height * 0.1], [width * 0.9, height * 0.9]], featureCollection);
+        
     var geoPath = d3.geoPath().projection(aProjection);
     var svg = d3.select("svg").attr("width",width).attr("height",height);
     //マップ描画
