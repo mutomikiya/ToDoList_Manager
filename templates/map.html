@@ -4,7 +4,7 @@
     <script src="../d3.min.js" type="text/JavaScript"></script>
   </head>
   <body>
-    <ul id = "plot-stations">
+    <ul id = "plot-stations" color = {{ color }} width = {{ width }} height = {{ height }}>
       {% for point in data %}
       <li point = {{ point }}></li>
       {% endfor %}
