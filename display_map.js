@@ -1,7 +1,13 @@
 var pointdata = {
-        "type":"LineString",
-        "coordinates": []
+        "type":"FeatureCollection",
+        "features": []
     }
+
+var linedata = {
+    "type":"LineString",
+    "coordinates": []
+}
+
 var elements = document.getElementById("plot-stations");
 var color = elements.attributes['color'].value
 
@@ -14,10 +20,22 @@ var most_north = 0
 var most_south = 90
 
 for (const child of elements.children) {
-    var point = child.attributes.item(0).value.split(',');
+    var point = child.attributes['coordinate'].value.split(',');
     var lon = Number.parseFloat(point[0])
     var lat = Number.parseFloat(point[1])
-    pointdata["coordinates"].push([lon, lat])
+    var stationName = child.textContent
+    pointdata["features"].push(
+        { 
+            "type": "Feature", 
+            "properties": { 
+                "name":stationName
+            }, 
+            "geometry": { 
+                "type": "Point", "coordinates": [lon, lat]
+            } 
+        },
+    );
+    linedata["coordinates"].push([lon,lat]);
 
     if (most_east < lon) {
         most_east = lon
@@ -39,27 +57,10 @@ elements.remove();
 
 var svg = d3.select("svg").attr("width",width).attr("height",height);
 
-var featureCollection = {
-    "type":"FeatureCollection",
-    "features": []
-}
-
-pointdata["coordinates"].forEach(point => {
-    featureCollection["features"].push(
-        {   "type": "Feature",
-            "properties": {},
-            "geometry": {
-                "type": "Point",
-                "coordinates": point
-            }
-        }
-    )
-});
-
 var aProjection = d3.geoMercator()
     .center(center)
     .translate([width/2, height/2])
-    .fitExtent([[width * 0.1, height * 0.1], [width * 0.9, height * 0.9]], featureCollection);
+    .fitExtent([[width * 0.1, height * 0.1], [width * 0.9, height * 0.9]], pointdata);
     
 var geoPath = d3.geoPath().projection(aProjection);
 
@@ -82,22 +83,31 @@ function createMap(japan) {
             .style("stroke-width", 0.1)
             .style("fill", "#FFEDB3");
 
-    var line = svg.selectAll(".ilne").data([pointdata])
+    var line = svg.selectAll(".ilne").data([linedata])
         .enter()
         .append("path")
             .attr("d",geoPath)
             .style("stroke",color)
-            .style("stroke-width",4.0)
+            .style("stroke-width",6.0)
             .style("fill","none");
 
-    var point = svg.selectAll(".point").data(pointdata.coordinates)
+    var point = svg.selectAll(".point").data(pointdata.features)
         .enter()
         .append("circle")
-            .attr("cx",function(d) { return aProjection(d)[0]; })
-            .attr("cy",function(d) { return aProjection(d)[1]; })
+            .attr("cx",function(d) { return aProjection(d.geometry.coordinates)[0]; })
+            .attr("cy",function(d) { return aProjection(d.geometry.coordinates)[1]; })
             .attr("r",5)
             .style("stroke","black")
-            .style("fill","white")
+            .style("fill","white");
+
+    var label = svg.selectAll("text").data(pointdata.features)
+        .enter()
+        .append("text")
+        .text(function(d) { return d.properties.name; })
+            .attr("x",function(d) { return aProjection(d.geometry.coordinates)[0]; })
+            .attr("y",function(d) { return aProjection(d.geometry.coordinates)[1] - 10; })
+            .attr("font-size", "12px") 
+            .attr('text-anchor', "middle");
 }
 // function displayRailload(railload_data) {
 //     var railload = svg.selectAll(".ilne").data(railload_data.features)

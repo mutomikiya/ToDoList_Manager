@@ -6,7 +6,7 @@
   <body>
     <ul id = "plot-stations" color = {{ color }} width = {{ width }} height = {{ height }}>
       {% for point in data %}
-      <li point = {{ point }}></li>
+      <li coordinate = {{ point['coordinate'] }}>{{ point['name'] }}</li>
       {% endfor %}
     </ul>
     <svg></svg>
